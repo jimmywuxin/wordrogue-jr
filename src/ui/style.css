@@ -1,0 +1,434 @@
+/* 像素风基础样式 */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Pixelify Sans', -apple-system, system-ui, monospace;
+  background: #1a1c2c;
+  color: #f4f4f4;
+  user-select: none;
+}
+
+/* 应用根容器 */
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 屏幕容器 */
+.screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.hidden { display: none !important; }
+
+/* 主菜单 */
+#menu-screen {
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 48px;
+}
+
+#menu-screen h1 {
+  font-size: 56px;
+  margin-bottom: 12px;
+  color: #ffec27;
+  text-shadow: 4px 4px 0 #b13e53, 8px 8px 0 #5d275d;
+  letter-spacing: 4px;
+}
+
+.subtitle {
+  color: #94b0c2;
+  margin-bottom: 32px;
+}
+
+/* 用户区域 */
+.user-section {
+  width: 100%;
+  max-width: 720px;
+  background: #29366f;
+  border: 4px solid #3a5b7f;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.user-section h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #ffec27;
+}
+
+.user-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.user-card {
+  background: #41a6f6;
+  border: 3px solid #29366f;
+  padding: 16px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #29366f;
+}
+
+.user-card.selected {
+  background: #38b764;
+  border-color: #ffec27;
+}
+
+.user-card .avatar {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.user-card .name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.user-card .grade-info {
+  font-size: 12px;
+  color: #1a1c2c;
+  margin-top: 4px;
+}
+
+/* 按钮 */
+.btn {
+  background: #94b0c2;
+  color: #1a1c2c;
+  border: 3px solid #566c86;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  background: #c0cbdc;
+}
+
+.btn-primary {
+  background: #38b764;
+  border-color: #1a8c44;
+  color: #f4f4f4;
+}
+
+.btn-primary:hover {
+  background: #4cd97b;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 2px solid #94b0c2;
+  color: #94b0c2;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+/* 模态框 */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: #29366f;
+  border: 4px solid #ffec27;
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+}
+
+.modal-content h2 {
+  margin-bottom: 16px;
+  color: #ffec27;
+}
+
+.modal-content label {
+  display: block;
+  margin: 12px 0 6px;
+  color: #94b0c2;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  background: #1a1c2c;
+  border: 2px solid #566c86;
+  color: #f4f4f4;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* 选关屏 */
+#level-screen header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 24px;
+  border-bottom: 2px dashed #566c86;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+#level-screen header h2 {
+  margin: 0;
+  font-size: 20px;
+  display: inline-block;
+}
+
+#user-summary {
+  margin-left: auto;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 960px;
+}
+
+.level-card {
+  background: #566c86;
+  border: 3px solid #94b0c2;
+  padding: 16px 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.level-card.completed {
+  background: #257179;
+  border-color: #38b764;
+}
+
+.level-card.unlocked {
+  background: #41a6f6;
+  border-color: #ffec27;
+  cursor: pointer;
+}
+
+.level-card.locked {
+  background: #1a1c2c;
+  border-color: #333;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-card .num {
+  font-size: 28px;
+  font-weight: bold;
+  display: block;
+}
+
+.level-card .stars {
+  color: #ffec27;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.level-card .level-name {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #94b0c2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* 游戏屏 */
+#game-screen {
+  padding: 0;
+  position: relative;
+  background: #0f0f1a;
+}
+
+#game-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: rgba(26, 28, 44, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 10;
+}
+
+.hud-left, .hud-right, .hud-center {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hud-item {
+  font-size: 18px;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* 题目面板 */
+.quiz-panel, .spell-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(26, 28, 44, 0.92);
+  border-top: 4px solid #ffec27;
+  padding: 16px;
+  z-index: 5;
+}
+
+.quiz-image {
+  text-align: center;
+  font-size: 80px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quiz-option {
+  background: #41a6f6;
+  border: 3px solid #29366f;
+  padding: 12px;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  color: white;
+}
+
+.quiz-option:hover {
+  background: #5cc6ff;
+}
+
+/* 拼词面板 */
+.spell-image {
+  text-align: center;
+  font-size: 60px;
+  margin-bottom: 8px;
+}
+
+.spell-meaning {
+  text-align: center;
+  color: #94b0c2;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+#spell-input {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 12px;
+  display: block;
+  background: #1a1c2c;
+  border: 3px solid #566c86;
+  color: #ffec27;
+  padding: 12px;
+  font-size: 20px;
+  text-align: center;
+  font-family: 'Pixelify Sans', monospace;
+  text-transform: lowercase;
+}
+
+.spell-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* 错词本 */
+.review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.review-item {
+  background: #29366f;
+  border: 2px solid #566c86;
+  padding: 12px;
+  text-align: center;
+}
+
+.review-item .word {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffec27;
+}
+
+.review-item .meaning {
+  font-size: 12px;
+  color: #94b0c2;
+}
+
+.muted {
+  color: #94b0c2;
+  font-size: 14px;
+}
+
+/* iPad 触屏适配 */
+@media (max-width: 1024px) {
+  #menu-screen h1 { font-size: 40px; }
+  .user-section { padding: 16px; }
+  .quiz-options { grid-template-columns: 1fr; }
+}

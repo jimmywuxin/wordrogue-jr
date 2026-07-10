@@ -1,0 +1,14 @@
+# 教材 PDF(150 MB,只本地用)
+textbook/*.pdf
+textbook/*.PDF
+
+# macOS
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 日志
+*.log

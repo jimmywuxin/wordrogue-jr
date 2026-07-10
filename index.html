@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>WordRogue-Jr · 词汇探险</title>
+  <link rel="stylesheet" href="./src/ui/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2214%22>📚</text></svg>">
+</head>
+<body>
+  <!-- 应用根容器 -->
+  <div id="app">
+    <!-- 主菜单 -->
+    <section id="menu-screen" class="screen">
+      <h1>📚 词汇探险</h1>
+      <p class="subtitle">WordRogue-Jr · 粤教粤人版 4-6 年级</p>
+
+      <div class="user-section">
+        <h2>选择角色</h2>
+        <div id="user-list" class="user-list">
+          <!-- JS 渲染 -->
+        </div>
+        <button id="btn-new-user" class="btn btn-primary">+ 新建角色</button>
+      </div>
+    </section>
+
+    <!-- 新建角色弹窗 -->
+    <div id="modal-new-user" class="modal hidden">
+      <div class="modal-content">
+        <h2>新建角色</h2>
+        <label for="new-name">名字</label>
+        <input id="new-name" type="text" maxlength="8" placeholder="例如:小明">
+
+        <label for="new-grade">年级</label>
+        <select id="new-grade">
+          <option value="4">四年级 (图配词)</option>
+          <option value="5">五年级 (图配词 + 拼词)</option>
+          <option value="6">六年级 (拼词为主)</option>
+        </select>
+
+        <div class="modal-actions">
+          <button id="btn-cancel-user" class="btn">取消</button>
+          <button id="btn-confirm-user" class="btn btn-primary">创建</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选关卡屏幕 -->
+    <section id="level-screen" class="screen hidden">
+      <header>
+        <button id="btn-back-menu" class="btn-icon">← 返回</button>
+        <h2 id="level-title">选关</h2>
+        <span id="user-summary" class="muted"></span>
+      </header>
+      <div id="level-grid" class="level-grid">
+        <!-- JS 渲染 -->
+      </div>
+    </section>
+
+    <!-- 游戏主屏 -->
+    <section id="game-screen" class="screen hidden">
+      <div id="game-hud">
+        <div class="hud-left">
+          <div class="hud-item">❤️ <span id="hud-hp">10</span></div>
+          <div class="hud-item">📖 <span id="hud-progress">0/10</span></div>
+        </div>
+        <div class="hud-center">
+          <span id="hud-mode">看图选词</span>
+        </div>
+        <div class="hud-right">
+          <button id="btn-pause" class="btn-icon">⏸</button>
+        </div>
+      </div>
+
+      <canvas id="game-canvas" width="960" height="640"></canvas>
+
+      <!-- 看图选词面板 -->
+      <div id="quiz-panel" class="quiz-panel hidden">
+        <div class="quiz-image" id="quiz-image"></div>
+        <div class="quiz-options" id="quiz-options"></div>
+      </div>
+
+      <!-- 拼词面板 -->
+      <div id="spell-panel" class="spell-panel hidden">
+        <div class="spell-image" id="spell-image"></div>
+        <div class="spell-meaning" id="spell-meaning"></div>
+        <input id="spell-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false">
+        <div class="spell-actions">
+          <button id="btn-spell-submit" class="btn btn-primary">发射</button>
+          <button id="btn-spell-skip" class="btn">跳过</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 暂停 / 总结弹窗 -->
+    <div id="modal-result" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="result-title">关卡完成!</h2>
+        <div id="result-stats"></div>
+        <div class="modal-actions">
+          <button id="btn-retry" class="btn">再玩一次</button>
+          <button id="btn-next-level" class="btn btn-primary">下一关</button>
+          <button id="btn-back-levels" class="btn">回选关</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错词本屏幕 -->
+    <section id="review-screen" class="screen hidden">
+      <header>
+        <button id="btn-back-levels-2" class="btn-icon">← 返回</button>
+        <h2>错词复习</h2>
+        <span id="review-count" class="muted"></span>
+      </header>
+      <div id="review-list" class="review-list"></div>
+    </section>
+  </div>
+
+  <!-- 引入引擎(模块化便于调试) -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
