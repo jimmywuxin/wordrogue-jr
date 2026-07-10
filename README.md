@@ -8,6 +8,10 @@
 - 💾 **存档**:localStorage + 可导出 JSON 备份
 - 📱 **跨平台**:macOS Safari / iPad Safari / Android Chrome 全支持
 
+## 试玩地址
+
+👉 **https://jimmywuxin.github.io/wordrogue-jr/** (GitHub Pages,公网部署,任何设备都能开)
+
 ## 快速开始
 
 ```bash
