@@ -5,6 +5,7 @@
 import { Storage } from '../save/storage.js';
 import { showScreen } from './screen.js';
 import { refreshMenu } from './menu.js';
+import { refreshLevelScreen } from './level.js';
 
 export function initModals() {
   // 新建用户
@@ -28,7 +29,7 @@ export function initModals() {
     refreshMenu();
     // 自动选这个新用户
     Storage.setCurrentUser(user.id);
-    showScreen('level');
+    refreshLevelScreen();
   });
 
   // 总结弹窗

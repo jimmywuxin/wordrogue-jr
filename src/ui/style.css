@@ -432,3 +432,100 @@ html, body {
   .user-section { padding: 16px; }
   .quiz-options { grid-template-columns: 1fr; }
 }
+
+/* 关卡屏视觉差异化 */
+.grade-header {
+  grid-column: 1 / -1;
+  font-size: 18px;
+  color: #ffec27;
+  padding: 12px 4px 8px;
+  border-bottom: 2px solid #3a5b7f;
+  margin-top: 12px;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.grade-header:first-child {
+  margin-top: 0;
+}
+
+.grade-badge {
+  font-size: 22px;
+  margin-right: 6px;
+}
+
+.level-card .card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  height: 24px;
+}
+
+.level-card .theme-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.level-card .mode-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 2px solid;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.level-card .mode-badge.mode-choose {
+  background: #38b764;
+  border-color: #1a8c44;
+  color: #fff;
+}
+
+.level-card .mode-badge.mode-spell {
+  background: #b13e53;
+  border-color: #5d275d;
+  color: #fff;
+}
+
+.level-card .num {
+  font-size: 22px;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+.level-card .level-name {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94b0c2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.level-card.locked .theme-emoji {
+  filter: grayscale(1) opacity(0.4);
+}
+
+/* 关卡屏 header 内的错词按钮 */
+#user-summary-wrap {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-review {
+  background: #b13e53;
+  color: #fff;
+  border: 3px solid #5d275d;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+.btn-review:hover {
+  background: #d35870;
+}

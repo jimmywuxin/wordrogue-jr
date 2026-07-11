@@ -50,7 +50,10 @@
       <header>
         <button id="btn-back-menu" class="btn-icon">← 返回</button>
         <h2 id="level-title">选关</h2>
-        <span id="user-summary" class="muted"></span>
+        <div id="user-summary-wrap">
+          <span id="user-summary" class="muted"></span>
+          <button id="btn-open-review" class="btn-review" style="display:none;">📝 错词复习</button>
+        </div>
       </header>
       <div id="level-grid" class="level-grid">
         <!-- JS 渲染 -->
@@ -91,6 +94,19 @@
         </div>
       </div>
     </section>
+
+    <!-- 暂停弹窗 -->
+    <div id="modal-pause" class="modal hidden">
+      <div class="modal-content">
+        <h2>⏸ 暂停中</h2>
+        <p class="muted" style="margin-bottom:8px;">怪物会等你回来 👾</p>
+        <div class="modal-actions">
+          <button id="btn-resume" class="btn btn-primary">继续</button>
+          <button id="btn-pause-retry" class="btn">重玩本关</button>
+          <button id="btn-pause-back" class="btn">返回选关</button>
+        </div>
+      </div>
+    </div>
 
     <!-- 暂停 / 总结弹窗 -->
     <div id="modal-result" class="modal hidden">

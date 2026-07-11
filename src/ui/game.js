@@ -20,7 +20,20 @@ export function initGameScreen() {
   game = new Game(canvas);
 
   document.getElementById('btn-pause').addEventListener('click', () => {
-    showScreen('level');
+    pauseGame();
+  });
+
+  document.getElementById('btn-resume').addEventListener('click', () => {
+    resumeGame();
+  });
+
+  document.getElementById('btn-pause-retry').addEventListener('click', () => {
+    document.getElementById('modal-pause').classList.add('hidden');
+    startLevel(currentLevel.id);
+  });
+
+  document.getElementById('btn-pause-back').addEventListener('click', () => {
+    quitToLevels();
   });
 
   // 选词点击
@@ -193,6 +206,48 @@ function finishLevel() {
 }
 
 /** 监听菜单选人后的进入下一级 */
-export function setOnUserSelected(cb) {
-  // 不需要
+/** 暂停:停主循环 + 显示暂停模态 */
+export function pauseGame() {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  document.getElementById('modal-pause').classList.remove('hidden');
+}
+
+/** 恢复:隐藏模态,重启主循环 */
+export function resumeGame() {
+  document.getElementById('modal-pause').classList.add('hidden');
+  lastTick = performance.now();
+  const loop = (now) => {
+    const dt = Math.min(40, now - lastTick);
+    lastTick = now;
+    game.update(dt);
+    game.render();
+    updateHUD();
+    if (game.state === 'cleared' || game.state === 'failed') {
+      finishLevel();
+      return;
+    }
+    rafId = requestAnimationFrame(loop);
+  };
+  rafId = requestAnimationFrame(loop);
+  // 拼词面板:恢复焦点
+  setTimeout(() => {
+    const el = document.getElementById('spell-input');
+    if (el && !document.getElementById('spell-panel').classList.contains('hidden')) {
+      el.focus();
+    }
+  }, 50);
+}
+
+/** 直接退出到关卡屏 */
+function quitToLevels() {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  document.getElementById('modal-pause').classList.add('hidden');
+  showScreen('level');
+  refreshLevelScreen();
 }
