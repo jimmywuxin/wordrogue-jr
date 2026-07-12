@@ -187,6 +187,31 @@ export function getWordsForLevel(levelId) {
   return WORDS.filter(w => w.grade === level.grade && w.unit === level.unit);
 }
 
+/**
+ * 从关卡词库里挑一批词,带优先级:
+ *  1. 错词本里属于本关卡的(强制带上,容易遇到)
+ *  2. 剩余名额从关卡随机抽
+ *  - 上限 = LEVELS.wordCount(默认 10)
+ */
+export function selectLevelWords(levelId, wrongWords = []) {
+  const pool = getWordsForLevel(levelId);
+  if (pool.length === 0) return [];
+  const cap = Math.max(1, ((LEVELS.find(l => l.id === levelId) || {}).wordCount) || 10);
+  if (pool.length <= cap) return pool;
+
+  const wrongSet = new Set(wrongWords);
+  const wrongInPool = pool.filter(w => wrongSet.has(w.word));
+  const rest = pool.filter(w => !wrongSet.has(w.word));
+  rest.sort(() => Math.random() - 0.5);
+
+  const picked = [...wrongInPool];
+  for (const w of rest) {
+    if (picked.length >= cap) break;
+    picked.push(w);
+  }
+  return picked;
+}
+
 // 通用占位词:跨年级抽不到时使用
 const FALLBACK_WORDS = [
   { id: 'fb-cat', word: 'cat', meaning: '猫' },

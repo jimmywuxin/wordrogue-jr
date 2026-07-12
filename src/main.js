@@ -5,18 +5,11 @@
 
 import { Storage } from './save/storage.js';
 import { initMenuScreen, refreshMenu } from './ui/menu.js';
-import { initLevelScreen, refreshLevelScreen, setOnSelectLevelCallback } from './ui/level.js';
-import { initGameScreen, startLevel } from './ui/game.js';
+import { initLevelScreen, refreshLevelScreen, setOnSelectLevelCallback, setOnPlayWrongWordsCallback } from './ui/level.js';
+import { initGameScreen, startLevel, startWrongWords } from './ui/game.js';
 import { initModals } from './ui/modals.js';
-import { initReviewScreen } from './ui/review.js';
-
-// 监听菜单中"用户点击某张人物卡"的事件
-window.addEventListener('click', (e) => {
-  const card = e.target.closest('.user-card');
-  if (card && document.getElementById('menu-screen') === e.target.closest('.screen:not(.hidden)')) {
-    // 由 menu.js 处理选中后跳转到关卡屏
-  }
-});
+import { initReviewScreen, setOnPlayWrongCallback } from './ui/review.js';
+import { unlockAudio, setEnabled as setSfxEnabled } from './audio/sfx.js';
 
 // 等待 DOM 就绪
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,6 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // 加载存档(失败则初始化空存档)
   if (!Storage.load()) {
     Storage.init();
+  }
+
+  // 还原音效开关
+  const u = Storage.getCurrentUser && Storage.getCurrentUser();
+  if (u) {
+    const settings = Storage.data.progress[u.id]?.settings;
+    if (settings && typeof settings.soundOn === 'boolean') {
+      setSfxEnabled(settings.soundOn);
+    }
   }
 
   // 启动各屏幕
@@ -38,11 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
   setOnSelectLevelCallback((levelId) => {
     startLevel(levelId);
   });
+  setOnPlayWrongWordsCallback(() => {
+    startWrongWords();
+  });
+  setOnPlayWrongCallback(() => {
+    startWrongWords();
+  });
+
+  // iOS Safari:首次交互解锁音频
+  const unlock = () => {
+    unlockAudio();
+    window.removeEventListener('click', unlock);
+    window.removeEventListener('keydown', unlock);
+    window.removeEventListener('touchstart', unlock);
+  };
+  window.addEventListener('click', unlock, { once: true });
+  window.addEventListener('keydown', unlock, { once: true });
+  window.addEventListener('touchstart', unlock, { once: true });
 
   console.log('✓ 所有屏幕就绪');
-
-  // 默认每分钟自动刷新菜单和关卡屏(确保新用户/进度及时反映)
-  setInterval(() => {
-    // 不强刷,只在用户操作时再刷新
-  }, 60000);
 });

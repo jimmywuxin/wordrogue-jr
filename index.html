@@ -53,6 +53,7 @@
         <div id="user-summary-wrap">
           <span id="user-summary" class="muted"></span>
           <button id="btn-open-review" class="btn-review" style="display:none;">📝 错词复习</button>
+          <button id="btn-open-settings" class="btn-settings" title="设置">⚙</button>
         </div>
       </header>
       <div id="level-grid" class="level-grid">
@@ -126,11 +127,67 @@
       <header>
         <button id="btn-back-levels-2" class="btn-icon">← 返回</button>
         <h2>错词复习</h2>
-        <span id="review-count" class="muted"></span>
+        <div class="review-header-actions">
+          <span id="review-count" class="muted"></span>
+          <button id="btn-play-wrong" class="btn-play-wrong" style="display:none;">🎯 开始挑战</button>
+        </div>
       </header>
       <div id="review-list" class="review-list"></div>
     </section>
   </div>
+    <!-- 设置弹窗 -->
+    <div id="modal-settings" class="modal hidden">
+      <div class="modal-content modal-wide">
+        <h2>⚙ 设置</h2>
+        <div class="settings-user">
+          <span id="settings-avatar" style="font-size:32px;"></span>
+          <span id="settings-name" style="font-size:20px;font-weight:bold;"></span>
+        </div>
+
+        <div class="settings-section">
+          <h3>声音</h3>
+          <label class="settings-row">
+            <span>🔊 音效</span>
+            <input type="checkbox" id="setting-sound" checked>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>进度备份</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:8px;">导出 JSON 文件,可在另一台设备恢复;或在其他设备导出后在此导入。</p>
+          <div class="modal-actions" style="justify-content:flex-start;margin-top:0;">
+            <button id="btn-export" class="btn">📥 导出备份</button>
+            <button id="btn-import" class="btn">📤 导入备份</button>
+            <input type="file" id="import-file" accept="application/json" style="display:none;">
+          </div>
+        </div>
+
+        <div class="settings-section danger-zone">
+          <h3>危险操作</h3>
+          <div class="modal-actions" style="justify-content:flex-start;margin-top:0;flex-wrap:wrap;">
+            <button id="btn-reset-progress" class="btn">🔄 重置进度</button>
+            <button id="btn-delete-user" class="btn btn-danger">🗑 删除角色</button>
+          </div>
+        </div>
+
+        <div class="modal-actions" style="margin-top:16px;">
+          <button id="btn-close-settings" class="btn btn-primary">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除/重置确认弹窗 -->
+    <div id="modal-confirm" class="modal hidden">
+      <div class="modal-content" style="max-width:420px;">
+        <h2 id="confirm-title">确认</h2>
+        <p id="confirm-body" style="margin-bottom:16px;line-height:1.5;"></p>
+        <div class="modal-actions">
+          <button id="btn-confirm-cancel" class="btn">取消</button>
+          <button id="btn-confirm-ok" class="btn btn-danger">确定</button>
+        </div>
+      </div>
+    </div>
+
 
   <!-- 引入引擎(模块化便于调试) -->
   <script type="module" src="./src/main.js"></script>

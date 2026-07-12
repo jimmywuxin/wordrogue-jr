@@ -172,4 +172,70 @@ export const Storage = {
     const avatars = ['🐱', '🐶', '🐰', '🦊', '🐻', '🐼', '🐯', '🦁', '🐸', '🐵', '🦄', '🐧'];
     return avatars[Math.floor(Math.random() * avatars.length)];
   },
+
+  // === 设置 ===
+
+  getSetting(userId, key, fallback) {
+    const p = this.data.progress[userId];
+    if (!p) return fallback;
+    const v = p.settings ? p.settings[key] : undefined;
+    return v === undefined ? fallback : v;
+  },
+
+  setSetting(userId, key, value) {
+    const p = this.data.progress[userId];
+    if (!p) return;
+    if (!p.settings) p.settings = { soundOn: true };
+    p.settings[key] = value;
+    this.save();
+  },
+
+  // === 重置 / 删除 ===
+
+  resetUserProgress(userId) {
+    const p = this.data.progress[userId];
+    if (!p) return;
+    p.wordStats = {};
+    p.wrongWords = [];
+    p.levelProgress = {};
+    this.save();
+  },
+
+  // === 备份文件 ===
+
+  exportAsDownload(userName) {
+    const json = this.exportToJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const safeName = String(userName || 'wordrogue').replace(/[^一-龥a-zA-Z0-9_-]/g, '_');
+    const date = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wordrogue-${safeName}-${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
+
+  /** 从 File 对象读 JSON 并导入,返回 promise */
+  importFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          this.data = data;
+          this.save();
+          resolve(true);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  },
+
+  // === 辅助 ===
 };
