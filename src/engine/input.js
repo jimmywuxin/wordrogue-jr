@@ -1,18 +1,33 @@
 /**
  * Input · 输入处理(键盘 + 鼠标)
+ *
+ * typing 标志由 UI 层显式设置:
+ * - true  = 拼词模式, 字母/空格交给输入框, 只有方向键移动
+ * - false = 看图选词 / 子弹飞行中, WASD+方向键都能移动
  */
 
 export const Input = {
   keys: {},
   mouse: { x: 0, y: 0, worldX: 0, worldY: 0, down: false },
-  /** 上次按键(用于一次性触发) */
   pressed: {},
+  typing: false,
 
   init(canvas) {
     window.addEventListener('keydown', (e) => {
+      if (this.typing) {
+        // 拼词输入模式: 只有方向键用于角色移动(阻止光标移动)
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+          e.preventDefault();
+          if (!this.keys[e.code]) this.pressed[e.code] = true;
+          this.keys[e.code] = true;
+        }
+        // 字母/空格/回车/退格等: 不设 keys, 不 preventDefault, 交给输入框
+        return;
+      }
+
       if (!this.keys[e.code]) this.pressed[e.code] = true;
       this.keys[e.code] = true;
-      // 防止方向键滚动页面
+      // 防止方向键/空格滚动页面
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
         e.preventDefault();
       }

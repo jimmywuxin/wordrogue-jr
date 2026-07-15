@@ -279,10 +279,23 @@ html, body {
   max-width: 100%;
 }
 
-/* 游戏屏 */
+/* 游戏屏 - flex 上下分区, canvas 和面板不重叠 */
 #game-screen {
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: #0f0f1a;
+  overflow: hidden;
+}
+
+#canvas-wrap {
+  flex: 1 1 auto;
   position: relative;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   background: #0f0f1a;
 }
 
@@ -291,109 +304,119 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
+  height: 44px;
   background: rgba(26, 28, 44, 0.85);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 12px;
   z-index: 10;
 }
 
 .hud-left, .hud-right, .hud-center {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .hud-item {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 #game-canvas {
   display: block;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
+  /* 尺寸由 JS 按比例计算, 保持 3:2 */
 }
 
-/* 题目面板 */
+/* 题目面板 - 底部固定区, 不遮挡 canvas */
 .quiz-panel, .spell-panel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(26, 28, 44, 0.92);
-  border-top: 4px solid #ffec27;
-  padding: 16px;
-  z-index: 5;
+  flex-shrink: 0;
+  background: rgba(26, 28, 44, 0.95);
+  border-top: 3px solid #ffec27;
+  padding: 8px 12px;
+}
+
+/* 看图选词: 左图 + 右选项 2x2 */
+.quiz-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .quiz-image {
-  text-align: center;
-  font-size: 80px;
-  margin-bottom: 12px;
+  font-size: 40px;
+  flex-shrink: 0;
   line-height: 1;
+  width: 48px;
+  text-align: center;
 }
 
 .quiz-options {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  max-width: 600px;
-  margin: 0 auto;
+  gap: 6px;
 }
 
 .quiz-option {
   background: #41a6f6;
-  border: 3px solid #29366f;
-  padding: 12px;
-  font-size: 18px;
+  border: 2px solid #29366f;
+  padding: 8px 6px;
+  font-size: 15px;
   text-align: center;
   cursor: pointer;
   font-family: inherit;
   color: white;
+  border-radius: 4px;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .quiz-option:hover {
   background: #5cc6ff;
 }
 
-/* 拼词面板 */
+/* 拼词面板 - 紧凑横排 */
+.spell-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .spell-image {
-  text-align: center;
-  font-size: 60px;
-  margin-bottom: 8px;
+  font-size: 40px;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .spell-meaning {
-  text-align: center;
-  color: #94b0c2;
-  margin-bottom: 12px;
-  font-size: 16px;
+  color: #ffec27;
+  font-size: 15px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 #spell-input {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto 12px;
-  display: block;
+  flex: 1;
+  min-width: 120px;
+  max-width: 260px;
   background: #1a1c2c;
-  border: 3px solid #566c86;
+  border: 2px solid #566c86;
   color: #ffec27;
-  padding: 12px;
-  font-size: 20px;
+  padding: 8px 10px;
+  font-size: 18px;
   text-align: center;
   font-family: 'Pixelify Sans', monospace;
-  text-transform: lowercase;
+  border-radius: 4px;
 }
 
 .spell-actions {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* 错词本 */
@@ -430,7 +453,9 @@ html, body {
 @media (max-width: 1024px) {
   #menu-screen h1 { font-size: 40px; }
   .user-section { padding: 16px; }
-  .quiz-options { grid-template-columns: 1fr; }
+  .quiz-image { font-size: 32px; width: 40px; }
+  .quiz-option { font-size: 13px; padding: 6px 4px; }
+  .spell-image { font-size: 32px; }
 }
 
 /* 关卡屏视觉差异化 */
@@ -690,16 +715,160 @@ html, body {
   background: #fff5a0;
 }
 
-/* === iPad 横屏适配 === */
-@media (max-width: 1024px) {
-  #menu-screen h1 { font-size: 40px; }
-  .user-section { padding: 16px; }
-  .quiz-options { grid-template-columns: 1fr; }
-  #spell-input { font-size: 18px; }
-  .quiz-panel, .spell-panel { padding: 12px; }
+/* === 窄屏适配(手机竖屏) === */
+@media (max-width: 600px) {
+  #menu-screen h1 { font-size: 36px; }
+  .quiz-image { font-size: 28px; width: 36px; }
+  .quiz-option { font-size: 12px; padding: 5px 3px; min-height: 36px; }
+  .spell-meaning { font-size: 13px; }
+  #spell-input { font-size: 16px; }
 }
 
 /* === 全局:让按钮有触感反馈 === */
 .btn:active, .quiz-option:active, .btn-icon:active, .btn-review:active, .btn-settings:active {
   transform: translateY(1px);
+}
+
+/* === 道具栏 HUD === */
+.hud-powerups {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
+}
+.pw-badge {
+  font-size: 13px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 2px solid;
+  animation: pw-pulse 1.2s ease-in-out infinite;
+}
+.pw-shield { background: rgba(124, 213, 255, 0.25); border-color: #7cd5ff; color: #7cd5ff; }
+.pw-speed { background: rgba(152, 245, 180, 0.25); border-color: #98f5b4; color: #98f5b4; }
+.pw-combo { background: rgba(255, 107, 107, 0.25); border-color: #ff6b6b; color: #ff6b6b; animation: pw-pulse 0.5s ease-in-out infinite; }
+
+@keyframes pw-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+/* === 奖励卡三选一 === */
+.reward-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.reward-card {
+  background: linear-gradient(160deg, #29366f 0%, #1a1c2c 100%);
+  border: 3px solid #566c86;
+  border-radius: 10px;
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.reward-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 236, 39, 0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.reward-card:hover {
+  border-color: #ffec27;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 0 #5d275d, 0 0 24px rgba(255, 236, 39, 0.3);
+}
+.reward-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.reward-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffec27;
+  margin-bottom: 6px;
+}
+.reward-desc {
+  font-size: 12px;
+  color: #94b0c2;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.reward-key {
+  font-size: 11px;
+  color: #566c86;
+  border: 1px solid #566c86;
+  border-radius: 4px;
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+@media (max-width: 600px) {
+  .reward-cards { grid-template-columns: 1fr; }
+}
+
+/* === 主菜单视觉升级 === */
+#menu-screen {
+  background: radial-gradient(ellipse at top, #29366f 0%, #1a1c2c 70%);
+}
+
+#menu-screen h1 {
+  animation: title-glow 3s ease-in-out infinite;
+}
+
+@keyframes title-glow {
+  0%, 100% { text-shadow: 4px 4px 0 #b13e53, 8px 8px 0 #5d275d; }
+  50% { text-shadow: 4px 4px 0 #b13e53, 8px 8px 0 #5d275d, 0 0 20px rgba(255, 236, 39, 0.4); }
+}
+
+/* === 关卡卡片悬浮动画 === */
+.level-card.unlocked {
+  transition: all 0.2s ease;
+}
+.level-card.unlocked:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 0 #29366f;
+}
+
+/* === 答题面板增强 === */
+.quiz-option {
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.quiz-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 #29366f;
+}
+.quiz-option:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* === 用户卡片增强 === */
+.user-card {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+.user-card:hover {
+  box-shadow: 0 6px 0 #29366f, 0 0 16px rgba(65, 166, 246, 0.3);
+}
+
+/* === 结果页 stat 增强 === */
+.stat-cell, .stat-val {
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.missed-chip {
+  border-radius: 6px;
+  transition: transform 0.15s;
+}
+.missed-chip:hover {
+  transform: scale(1.05);
 }

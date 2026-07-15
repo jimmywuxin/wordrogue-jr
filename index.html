@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>WordRogue-Jr · 词汇探险</title>
-  <link rel="stylesheet" href="./src/ui/style.css">
+  <link rel="stylesheet" href="./src/ui/style.css?v=3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2214%22>📚</text></svg>">
 </head>
 <body>
@@ -63,20 +65,22 @@
 
     <!-- 游戏主屏 -->
     <section id="game-screen" class="screen hidden">
-      <div id="game-hud">
-        <div class="hud-left">
-          <div class="hud-item">❤️ <span id="hud-hp">10</span></div>
-          <div class="hud-item">📖 <span id="hud-progress">0/10</span></div>
+      <div id="canvas-wrap">
+        <div id="game-hud">
+          <div class="hud-left">
+            <div class="hud-item">❤️ <span id="hud-hp">10</span></div>
+            <div class="hud-item">📖 <span id="hud-progress">0/10</span></div>
+            <div id="hud-powerups" class="hud-powerups"></div>
+          </div>
+          <div class="hud-center">
+            <span id="hud-mode">看图选词</span>
+          </div>
+          <div class="hud-right">
+            <button id="btn-pause" class="btn-icon">⏸</button>
+          </div>
         </div>
-        <div class="hud-center">
-          <span id="hud-mode">看图选词</span>
-        </div>
-        <div class="hud-right">
-          <button id="btn-pause" class="btn-icon">⏸</button>
-        </div>
+        <canvas id="game-canvas" width="960" height="640"></canvas>
       </div>
-
-      <canvas id="game-canvas" width="960" height="640"></canvas>
 
       <!-- 看图选词面板 -->
       <div id="quiz-panel" class="quiz-panel hidden">
@@ -88,7 +92,7 @@
       <div id="spell-panel" class="spell-panel hidden">
         <div class="spell-image" id="spell-image"></div>
         <div class="spell-meaning" id="spell-meaning"></div>
-        <input id="spell-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false">
+        <input id="spell-input" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="输入英文 · 方向键走位">
         <div class="spell-actions">
           <button id="btn-spell-submit" class="btn btn-primary">发射</button>
           <button id="btn-spell-skip" class="btn">跳过</button>
@@ -119,6 +123,15 @@
           <button id="btn-next-level" class="btn btn-primary">下一关</button>
           <button id="btn-back-levels" class="btn">回选关</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 奖励卡三选一弹窗 -->
+    <div id="modal-reward" class="modal hidden">
+      <div class="modal-content modal-wide">
+        <h2 style="text-align:center;">🎁 宝箱奖励 · 三选一</h2>
+        <p class="muted" style="text-align:center;margin-bottom:16px;">选择一项强化,助你继续探险</p>
+        <div id="reward-cards" class="reward-cards"></div>
       </div>
     </div>
 
@@ -190,6 +203,6 @@
 
 
   <!-- 引入引擎(模块化便于调试) -->
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.js?v=3"></script>
 </body>
 </html>

@@ -1013,7 +1013,7 @@ export const EXTRACTED_WORDS = [
   },
   {
     id: "5-u4-0126",
-    word: "activities\nnever",
+    word: "never",
     meaning: "\u4ece\u672a",
     grade: 5,
     unit: 4,
@@ -1253,8 +1253,8 @@ export const EXTRACTED_WORDS = [
   },
   {
     id: "5-u6-0156",
-    word: "candy hang up",
-    meaning: "\u6302\u8d77\u6765\n\u7684\u590d\u6570\u5f62\u5f0f",
+    word: "hang up",
+    meaning: "\u6302\u8d77\u6765",
     grade: 5,
     unit: 6,
     image: "\ud83d\udcd8",
@@ -1413,7 +1413,7 @@ export const EXTRACTED_WORDS = [
   },
   {
     id: "5-u6-0176",
-    word: "tooth\nbike",
+    word: "bikes",
     meaning: "\u81ea\u884c\u8f66 \u7684\u590d\u6570\u5f62\u5f0f",
     grade: 5,
     unit: 6,
@@ -1526,7 +1526,7 @@ export const EXTRACTED_WORDS = [
   {
     id: "6-u1-0190",
     word: "see the dentist",
-    meaning: "\u53bb\u770b\u7259\u533b \u6253\u6270\u4e86\uff1b\u8bf7\u539f\u8c05",
+    meaning: "\u53bb\u770b\u7259\u533b",
     grade: 6,
     unit: 1,
     image: "\ud83d\udcd8",

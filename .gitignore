@@ -12,3 +12,6 @@ textbook/*.PDF
 
 # 日志
 *.log
+
+# WorkBuddy 项目数据
+.workbuddy/

@@ -1,11 +1,14 @@
 /**
  * Game Screen · 协调游戏引擎 + UI
+ *
+ * 适配 roguelike 引擎: 房间推进 / 奖励卡三选一 / 道具栏 HUD / 连击
  */
 
 import { Storage } from '../save/storage.js';
 import { showScreen } from './screen.js';
 import { LEVELS, getDistractors } from '../data/words.js';
 import { Game } from '../engine/game.js';
+import { Input } from '../engine/input.js';
 import { showResult } from './modals.js';
 import { refreshLevelScreen } from './level.js';
 import * as sfx from '../audio/sfx.js';
@@ -15,12 +18,30 @@ let rafId = null;
 let currentLevel = null;
 let lastTick = 0;
 let phase = 'choose'; // choose / spell
-let sessionMissed = [];  // 本关漏词清单(用于结果页)
+let sessionMissed = [];
 let wasBusy = false;
+let prevState = null;
+
+/** 按比例缩放 canvas 到 canvas-wrap 可用空间, 保持 3:2 不变形 */
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  const canvas = document.getElementById('game-canvas');
+  if (!wrap || !canvas) return;
+  const wrapW = wrap.clientWidth;
+  const wrapH = wrap.clientHeight;
+  if (wrapW === 0 || wrapH === 0) return;
+  const ratio = 960 / 640; // 3:2
+  let w = wrapW, h = wrapW / ratio;
+  if (h > wrapH) { h = wrapH; w = wrapH * ratio; }
+  canvas.style.width = Math.floor(w) + 'px';
+  canvas.style.height = Math.floor(h) + 'px';
+}
 
 export function initGameScreen() {
   const canvas = document.getElementById('game-canvas');
   game = new Game(canvas);
+
+  window.addEventListener('resize', resizeCanvas);
 
   document.getElementById('btn-pause').addEventListener('click', () => {
     sfx.sfxClick();
@@ -56,7 +77,7 @@ export function initGameScreen() {
   const submitBtn = document.getElementById('btn-spell-submit');
 
   function submitSpell() {
-    const value = spellInput.value.trim().toLowerCase();
+    const value = spellInput.value.trim();
     if (!value || !game.currentWord) return;
     submitAnswerUI(value);
     spellInput.value = '';
@@ -67,6 +88,14 @@ export function initGameScreen() {
     submitSpell();
   });
   spellInput.addEventListener('keydown', (e) => {
+    // 方向键: 手动驱动角色移动, 阻止光标在输入框内移动
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+      e.preventDefault();
+      if (!Input.keys[e.code]) Input.pressed[e.code] = true;
+      Input.keys[e.code] = true;
+    }
+    // 阻止冒泡到 window, 彻底避免 input.js(任何版本)拦截字母/空格
+    e.stopPropagation();
     if (e.key === 'Enter') {
       submitSpell();
     }
@@ -75,12 +104,22 @@ export function initGameScreen() {
   document.getElementById('btn-spell-skip').addEventListener('click', () => {
     sfx.sfxSkip();
     if (game.currentWord) {
-      // 跳过 = 不知道,记错词 + 入本关漏词
       sessionMissed.push(game.currentWord);
       Storage.recordWordResult(Storage.getCurrentUser().id, game.currentWord.word, false);
+      game.combo = 0;
       game._selectNextTarget();
       showNextQuestion();
     }
+  });
+
+  // 奖励卡点击
+  document.getElementById('reward-cards').addEventListener('click', (e) => {
+    const card = e.target.closest('.reward-card');
+    if (!card) return;
+    const idx = parseInt(card.dataset.idx, 10);
+    sfx.sfxClick();
+    game.chooseReward(idx);
+    document.getElementById('modal-reward').classList.add('hidden');
   });
 
   // 监听 retry / next 事件
@@ -105,13 +144,11 @@ export function initGameScreen() {
 /** UI 层包装:在 engine 之外加 busy 锁、漏词追踪、按钮禁用 */
 function submitAnswerUI(word) {
   if (game.busy || game.state !== 'playing') return;
-  // 答前快照当前目标,若答错就把它记入 sessionMissed
   const targetWord = game.currentWord?.word;
   const targetMeaning = game.currentWord?.meaning;
   const targetImage = game.currentWord?.image;
   game.submitAnswer(word);
   if (word !== targetWord && targetWord) {
-    // 答错
     sessionMissed.push({
       word: targetWord,
       meaning: targetMeaning,
@@ -119,15 +156,14 @@ function submitAnswerUI(word) {
     });
   }
   if (game.busy) {
-    // 答对:等击杀动画结束再切下一题
     lockQuizUI();
   } else {
-    // 答错:engine 已立即换下一题,刷新 UI
     showNextQuestion();
   }
 }
 
 function lockQuizUI() {
+  Input.typing = false;
   document.querySelectorAll('.quiz-option').forEach(b => {
     b.disabled = true;
     b.style.opacity = '0.5';
@@ -143,6 +179,7 @@ function unlockQuizUI() {
   });
   document.getElementById('spell-input').disabled = false;
   document.getElementById('btn-spell-submit').disabled = false;
+  Input.typing = (phase === 'spell');
 }
 
 /** 从关卡屏点进游戏时调用 */
@@ -157,7 +194,7 @@ export function startWrongWords() {
   currentLevel = {
     id: 'wrong-words',
     name: '错词挑战',
-    mode: 'spell',  // 拼词模式更有挑战性
+    mode: 'spell',
     wordCount: 0,
     theme: { emoji: '🎯', label: '错词挑战' },
     isWrongWords: true,
@@ -167,10 +204,10 @@ export function startWrongWords() {
 
 function _doStart() {
   showScreen('game');
+  requestAnimationFrame(resizeCanvas);
   if (currentLevel.isWrongWords) {
     const ok = game.loadWrongWords();
     if (!ok) {
-      // 错词本被玩空
       showScreen('level');
       refreshLevelScreen();
       return;
@@ -179,6 +216,7 @@ function _doStart() {
     game.loadLevel(currentLevel.id);
   }
   sessionMissed = [];
+  prevState = null;
 
   document.getElementById('hud-hp').textContent = game.player.hp;
   document.getElementById('hud-progress').textContent = `0/${game.total}`;
@@ -196,13 +234,13 @@ function _doStart() {
     game.update(dt);
     game.render();
     updateHUD();
+    handleStateChange();
 
-    if (!game.busy) {
+    if (!game.busy && game.state === 'playing') {
       unlockQuizUI();
       if (wasBusy) {
         wasBusy = false;
-        // 击杀动画结束,刷新题目
-        if (game.state === 'playing') showNextQuestion();
+        showNextQuestion();
       }
     } else {
       wasBusy = true;
@@ -217,12 +255,58 @@ function _doStart() {
   rafId = requestAnimationFrame(loop);
 }
 
+/** 检测引擎状态变化,驱动 UI */
+function handleStateChange() {
+  if (game.state === prevState) return;
+  const entered = game.state;
+
+  if (entered === 'rewardChoice') {
+    showRewardModal();
+  } else if (entered === 'roomClear') {
+    // 房间清空过渡:隐藏答题面板
+    document.getElementById('quiz-panel').classList.add('hidden');
+    document.getElementById('spell-panel').classList.add('hidden');
+    requestAnimationFrame(resizeCanvas);
+  } else if (entered === 'playing' && prevState === 'rewardChoice') {
+    // 奖励选完回到战斗
+    showNextQuestion();
+  } else if (entered === 'playing' && prevState === 'roomClear') {
+    // 新房间开始
+    showNextQuestion();
+  }
+
+  prevState = entered;
+}
+
+function showRewardModal() {
+  const rewards = game.pendingRewards;
+  if (!rewards) return;
+  const container = document.getElementById('reward-cards');
+  container.innerHTML = '';
+  for (let i = 0; i < rewards.length; i++) {
+    const r = rewards[i];
+    const card = document.createElement('div');
+    card.className = 'reward-card';
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <div class="reward-icon">${r.icon}</div>
+      <div class="reward-label">${r.label}</div>
+      <div class="reward-desc">${r.desc}</div>
+      <div class="reward-key">按 ${i + 1}</div>
+    `;
+    container.appendChild(card);
+  }
+  document.getElementById('modal-reward').classList.remove('hidden');
+}
+
 /** 渲染当前题目面板 */
 function showNextQuestion() {
   if (!game || !game.currentWord) return;
+  if (game.state !== 'playing') return;
   const w = game.currentWord;
 
   if (phase === 'choose') {
+    Input.typing = false;
     document.getElementById('quiz-panel').classList.remove('hidden');
     document.getElementById('spell-panel').classList.add('hidden');
 
@@ -240,6 +324,7 @@ function showNextQuestion() {
       optionsEl.appendChild(btn);
     }
   } else {
+    Input.typing = true;
     document.getElementById('quiz-panel').classList.add('hidden');
     document.getElementById('spell-panel').classList.remove('hidden');
 
@@ -253,12 +338,24 @@ function showNextQuestion() {
       }
     }, 50);
   }
+  requestAnimationFrame(resizeCanvas);
 }
 
 function updateHUD() {
   if (!game) return;
   document.getElementById('hud-hp').textContent = game.player.hp;
   document.getElementById('hud-progress').textContent = `${game.killed}/${game.total}`;
+
+  // 道具栏
+  const pw = game.powerups;
+  const pwEl = document.getElementById('hud-powerups');
+  if (pwEl) {
+    let html = '';
+    if (pw.shield > 0) html += `<span class="pw-badge pw-shield">🛡️ ${Math.ceil(pw.shield / 60)}s</span>`;
+    if (pw.speed > 0) html += `<span class="pw-badge pw-speed">👟 ${Math.ceil(pw.speed / 60)}s</span>`;
+    if (game.combo >= 2) html += `<span class="pw-badge pw-combo">🔥 x${game.combo}</span>`;
+    pwEl.innerHTML = html;
+  }
 }
 
 function finishLevel() {
@@ -266,25 +363,31 @@ function finishLevel() {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
+  // 隐藏答题面板
+  Input.typing = false;
+  document.getElementById('quiz-panel').classList.add('hidden');
+  document.getElementById('spell-panel').classList.add('hidden');
 
   const userId = Storage.getCurrentUser().id;
   const isCleared = game.state === 'cleared';
-  const accuracy = Math.round((game.killed / game.total) * 100);
+  const accuracy = game.total > 0 ? Math.round((game.killed / game.total) * 100) : 0;
 
-  // 星数:通关 +1,半血以上 +2,满血 100%命中 +3
+  // 星数
   let stars = 0;
   if (isCleared) stars = 1;
   if (isCleared && game.player.hp >= game.player.maxHp * 0.7) stars = 2;
-  if (isCleared && game.player.hp === game.player.maxHp && accuracy === 100) stars = 3;
+  if (isCleared && game.player.hp >= game.player.maxHp * 0.9 && accuracy >= 90) stars = 3;
 
-  // 失败时,把场上还没被打的怪都记入漏词
+  // 失败时,剩余怪记入漏词
   if (!isCleared) {
     for (const e of game.enemies) {
       if (e.hp > 0 && !e.dying) {
-        sessionMissed.push({
-          word: e.word, meaning: e.meaning, image: e.image,
-        });
+        sessionMissed.push({ word: e.word, meaning: e.meaning, image: e.image });
       }
+    }
+    // 剩余未出场房间词也记入
+    for (const w of game.remainingWords) {
+      sessionMissed.push({ word: w.word, meaning: w.meaning, image: w.image });
     }
   }
 
@@ -311,7 +414,6 @@ function finishLevel() {
 
 function renderStats(stars, accuracy, isCleared) {
   const wrongTotal = Storage.getWrongWords(Storage.getCurrentUser().id).length;
-  // 去重展示漏词
   const seen = new Set();
   const missed = sessionMissed.filter(w => {
     if (seen.has(w.word)) return false;
@@ -326,6 +428,8 @@ function renderStats(stars, accuracy, isCleared) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
       <div class="stat-cell">❤️ 剩余血量</div><div class="stat-val">${game.player.hp}/${game.player.maxHp}</div>
       <div class="stat-cell">🎯 命中率</div><div class="stat-val">${accuracy}%</div>
+      <div class="stat-cell">🔥 最高连击</div><div class="stat-val">x${game.maxCombo}</div>
+      <div class="stat-cell">🏠 通关房间</div><div class="stat-val">${isCleared ? game.maxRooms : game.room - 1}/${game.maxRooms}</div>
       <div class="stat-cell">📚 错词本</div><div class="stat-val">${wrongTotal} 个</div>
       <div class="stat-cell">📝 本关漏词</div><div class="stat-val">${missed.length} 个</div>
     </div>
@@ -356,6 +460,7 @@ function escapeHtml(s) {
 
 /** 暂停 */
 export function pauseGame() {
+  Input.typing = false;
   if (rafId) {
     cancelAnimationFrame(rafId);
     rafId = null;
@@ -366,6 +471,7 @@ export function pauseGame() {
 /** 恢复 */
 export function resumeGame() {
   document.getElementById('modal-pause').classList.add('hidden');
+  requestAnimationFrame(resizeCanvas);
   lastTick = performance.now();
   const loop = (now) => {
     const dt = Math.min(40, now - lastTick);
@@ -373,16 +479,18 @@ export function resumeGame() {
     game.update(dt);
     game.render();
     updateHUD();
-    if (!game.busy) {
+    handleStateChange();
+
+    if (!game.busy && game.state === 'playing') {
       unlockQuizUI();
       if (wasBusy) {
         wasBusy = false;
-        // 击杀动画结束,刷新题目
-        if (game.state === 'playing') showNextQuestion();
+        showNextQuestion();
       }
     } else {
       wasBusy = true;
     }
+
     if (game.state === 'cleared' || game.state === 'failed') {
       finishLevel();
       return;
@@ -399,6 +507,7 @@ export function resumeGame() {
 }
 
 function quitToLevels() {
+  Input.typing = false;
   if (rafId) {
     cancelAnimationFrame(rafId);
     rafId = null;
